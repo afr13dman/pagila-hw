@@ -13,18 +13,44 @@ The following picture illustrates the database's structure:
 
 1. Fork this repo and clone it on the lambda server.
 
-   Notice that this repo uses [git submodules](https://git-scm.com/book/en/v2/Git-Tools-Submodules).
-   These are a tool that allow us to work with very complicated projects by including git repos within other git repos,
-   and here we use submodules to include the original pagila repo.
-   In order to clone the repo with the submodules, you need to run the commands
-   ```
-   $ git clone https://github.com/mikeizbicki/pagila-hw
-   $ cd pagila-hw
-   $ git submodule init
-   $ git submodule update
-   ```
+    Notice that this repo uses [git submodules](https://git-scm.com/book/en/v2/Git-Tools-Submodules).
+    These are a tool that allow us to work with very complicated projects by including git repos within other git repos,
+    and here we use submodules to include the original [pagila database](https://github.com/devrimgunduz/pagila/tree/master).
+    Pagila is under active development,
+    and their data changes regularly.
+    The use of submodules allows us to easily update our version of the database to match whichever version of theirs we want.
+
+    By default, cloning a repo does not also give you the files in the submodules.
+    To get these files, you must run the following full sequence of commands:
+    ```
+    $ git clone https://github.com/mikeizbicki/pagila-hw
+    $ cd pagila-hw
+    $ git submodule init
+    $ git submodule update
+    ```
+    You know that you got the data correctly if:
+    1. There are files in the `pagila` subfolder when you run the command
+        ```
+        $ ls pagila
+        ```
+    2. You can bring up the docker container and connect with psql and you have a non-empty schema:
+        ```
+        $ docker-compose up -d --build
+        $ docker-compose exec pg psql
+        postgres=# \d
+        Schema |            Name            |       Type        |  Owner
+        --------+----------------------------+-------------------+----------
+        public | actor                      | table             | postgres
+        public | actor_actor_id_seq         | sequence          | postgres
+        public | actor_info                 | view              | postgres
+        public | address                    | table             | postgres
+        public | address_address_id_seq     | sequence          | postgres
+
+        ...
+        ```
 
 1. Modify the `README.md` file so that the test case image points to your forked repo.
+
 1. Solve the each of the problems in the `sql` folder.
     1. The folder contains one file for each problem.
        At the top of each file is a description of what the file is supposed to compute.
@@ -32,13 +58,7 @@ The following picture illustrates the database's structure:
     1. The folder `expected` contains the expected outputs for each problem.
        You can verify your answer by checking that the output of your `SELECT` statement matches the output in the `answers` folder.
     1. The script `run_tests.sh` will perform these checks for you automatically using the `diff` command.
-       It must be run from within a postgres docker container.
-
-       Bring up the docker container with the command
-       ```
-       $ docker-compose up -d --build
-       ```
-       Then run the the test case script with
+       It must be run from within the database container with the following command
        ```
        $ docker-compose exec pg ./run_tests.sh
        ```
